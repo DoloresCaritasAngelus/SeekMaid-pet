@@ -1,5 +1,9 @@
 # SeekMaid 女仆（DeepSeek 娘桌宠）
 
+[![License: MIT](https://img.shields.io/github/license/DoloresCaritasAngelus/SeekMaid-pet)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%2011-8A2BE2)]()
+[![DSH](https://img.shields.io/badge/DSH-DeepSeek%20Harness-blue)]()
+
 一个运行在 Windows 11 上的可爱桌面宠物。使用你提供的 DEEPSEEK 娘形象，
 常驻桌面/系统托盘，并连接本机 DSH（DeepSeek Harness）终端：
 
@@ -92,7 +96,6 @@ seekmaid-pet/
 └── assets/
     ├── deepseek_girl.png    # DeepSeek 娘立绘
     ├── deepseek_girl.ico    # 任务栏/托盘图标
-    ├── deepseek_sprite.png  # 精灵图素材（预留）
     └── notify.wav           # 自定义提示音
 ```
 
@@ -103,6 +106,14 @@ seekmaid-pet/
 ```sh
 # 在项目目录里执行
 dsh plugin --profile web add "file:$(pwd)"
+```
+
+### 从 GitHub 直接安装（无需 npm）
+
+如果你不想克隆到本地，也可以让 DSH 直接从 GitHub 安装：
+
+```sh
+dsh plugin --profile web add "git+https://github.com/DoloresCaritasAngelus/SeekMaid-pet.git"
 ```
 
 也可以直接运行项目里的安装脚本：

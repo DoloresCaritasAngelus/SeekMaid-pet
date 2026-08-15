@@ -1,7 +1,15 @@
 {
   "name": "seekmaid-pet",
   "description": "SeekMaid 女仆 —— DeepSeek 娘桌宠，DSH 自动启动并监控任务状态",
-  "version": "0.1.0",
+  "version": "0.2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DoloresCaritasAngelus/SeekMaid-pet.git"
+  },
+  "homepage": "https://github.com/DoloresCaritasAngelus/SeekMaid-pet#readme",
+  "bugs": {
+    "url": "https://github.com/DoloresCaritasAngelus/SeekMaid-pet/issues"
+  },
   "type": "module",
   "main": "src/index.js",
   "files": [
@@ -13,8 +21,17 @@
     "assets",
     "config.json",
     "README.md",
+    "AI.md",
+    "CHANGELOG.md",
+    "LICENSE",
     "requirements.txt",
-    "run_pet.bat"
+    "run_pet.bat",
+    "run_pet_xcb.sh",
+    "setup_windows.bat",
+    "install_plugin.bat",
+    "install_plugin.sh",
+    "docs",
+    "tools"
   ],
   "keywords": [
     "deepseek-harness",
