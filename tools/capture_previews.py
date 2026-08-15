@@ -94,7 +94,13 @@ def main() -> None:
     composite(pet, "docs/screenshots/question.png")
 
     # 出错
-    pet._on_event_received("preview", {"type": "agent/error", "data": {}})
+    pet.show_message(
+        "检测到 DSH 运行异常，请查看终端",
+        6000,
+        kind="error",
+        title="出错了",
+        sound=False,
+    )
     app.processEvents()
     time.sleep(0.6)
     composite(pet, "docs/screenshots/error.png")
