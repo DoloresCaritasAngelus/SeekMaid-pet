@@ -26,6 +26,32 @@ Windows 11 原生运行 SeekMaid 女仆桌宠（PySide6）
 
 > 如果你的 DSH 直接跑在 Windows 上，也可以使用同一套代码，`dsh_url` 保持 `http://localhost:3080` 即可。
 
+## 效果预览
+
+**待机动画**
+
+![idle](docs/screenshots/idle.gif)
+
+**任务开始**
+
+![task_start](docs/screenshots/task_start.png)
+
+**任务完成**
+
+![task_finish](docs/screenshots/task_finish.png)
+
+**需要授权**
+
+![approval](docs/screenshots/approval.png)
+
+**DSH 提问**
+
+![question](docs/screenshots/question.png)
+
+**出错提示**
+
+![error](docs/screenshots/error.png)
+
 ## 克隆后能否直接获得同等能力？
 
 **基本可以，但不是“克隆完立刻就能用”**，需要几步初始化：
