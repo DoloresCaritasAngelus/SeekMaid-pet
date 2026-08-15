@@ -1,0 +1,4 @@
+# seekmaid-pet bundle layer: insert the desktop-pet auto-start plugin row.
+- insert:
+    - id: seekmaid
+      name: 'seekmaid-pet'

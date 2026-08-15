@@ -1,0 +1,22 @@
+{
+  "dsh_url": "http://localhost:3080",
+  "session_id": "",
+  "poll_interval": 3,
+  "scale": 1.0,
+  "notify_on_start": true,
+  "notify_on_finish": true,
+  "notify_on_message": true,
+  "notify_on_tool": false,
+  "notify_on_todos": true,
+  "notify_on_status": false,
+  "notify_sound": true,
+  "notify_duration_user_ms": 8000,
+  "notify_duration_assistant_ms": 15000,
+  "notify_duration_start_ms": 8000,
+  "notify_duration_finish_ms": 12000,
+  "startup_timeout_minutes": 3,
+  "position": {
+    "x": 120,
+    "y": 120
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "seekmaid-pet",
+  "description": "SeekMaid 女仆 —— DeepSeek 娘桌宠，DSH 自动启动并监控任务状态",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "src/index.js",
+  "files": [
+    "src",
+    "cordis.patch.yml",
+    "deepseek_pet.py",
+    "dsh_client.py",
+    "dsh_monitor.py",
+    "assets",
+    "config.json",
+    "README.md",
+    "requirements.txt",
+    "run_pet.bat"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "cordis",
+    "desktop-pet",
+    "seekmaid"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  }
+}
