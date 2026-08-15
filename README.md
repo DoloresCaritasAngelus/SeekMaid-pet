@@ -48,13 +48,35 @@ Windows 11 原生运行 SeekMaid 女仆桌宠（PySide6）
 
 所以别人克隆后，需要先执行初始化脚本，才能获得和当前一样的桌宠能力。
 
+## 项目结构
+
+```text
+seekmaid-pet/
+├── deepseek_pet.py          # Windows 原生桌宠主程序（PySide6）
+├── dsh_client.py            # DSH API 客户端
+├── dsh_monitor.py           # DSH 任务监控 + WebSocket 事件
+├── src/index.js             # DSH 插件 host 端：自动部署 + 启动桌宠
+├── cordis.patch.yml         # DSH 插件注册补丁
+├── package.json             # DSH 插件包元数据
+├── setup_windows.bat        # Windows 一键初始化（venv + PySide6）
+├── run_pet.bat              # Windows 启动桌宠
+├── install_plugin.bat/.sh   # DSH 插件安装脚本
+├── AI.md                    # 给 AI 代理的部署指南
+├── README.md
+└── assets/
+    ├── deepseek_girl.png    # DeepSeek 娘立绘
+    ├── deepseek_girl.ico    # 任务栏/托盘图标
+    ├── deepseek_sprite.png  # 精灵图素材（预留）
+    └── notify.wav           # 自定义提示音
+```
+
 ## DSH 插件安装（推荐）
 
 这个项目同时是一个 DSH 插件，包名 `seekmaid-pet`。安装后，DSH 每次启动都会自动启动桌宠；DSH 退出时也会自动关闭桌宠。
 
 ```sh
-# 在 DSH 部署环境里执行（把路径换成你的实际路径）
-dsh plugin --profile web add file:/home/ehekatl/dsh/dsh\ work/seekmaid-pet
+# 在项目目录里执行
+dsh plugin --profile web add "file:$(pwd)"
 ```
 
 也可以直接运行项目里的安装脚本：
@@ -72,8 +94,8 @@ install_plugin.bat
 如果 `dsh plugin` 不可用，也可以手动接线：
 
 ```sh
-# 1) 让 DSH 能解析到插件
-ln -sfn "/home/ehekatl/dsh/dsh work/seekmaid-pet" "$DSH_HOME/../dsh/node_modules/seekmaid-pet"
+# 1) 让 DSH 能解析到插件（在项目目录里执行）
+ln -sfn "$(pwd)" "$DSH_HOME/../dsh/node_modules/seekmaid-pet"
 
 # 2) 在 profile patch 里注册
 #    编辑 ~/.dsh/profiles/web/cordis.patch.yml，追加：
@@ -104,6 +126,16 @@ ln -sfn "/home/ehekatl/dsh/dsh work/seekmaid-pet" "$DSH_HOME/../dsh/node_modules
 
 > `windowsProject` 是 WSL 里的 DSH 插件去拉起 Windows 原生桌宠时使用的路径。
 > 插件默认会自动猜测 `C:\Users\<当前WSL用户名>\seekmaid-pet`，如果你的路径不同，请显式配置。
+
+## 兼容性
+
+| 项目 | 要求 |
+|---|---|
+| Windows | Windows 11（10 也可尝试） |
+| Python | 3.10+（Windows 侧） |
+| DSH | DeepSeek Harness ≥ 0.1.0-rc.6 |
+| DSH 运行位置 | WSL / Linux（推荐）或 Windows 原生 |
+| 网络 | Windows 可访问 `http://localhost:3080` |
 
 ## 界面与操作
 
