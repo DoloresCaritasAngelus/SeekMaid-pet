@@ -70,12 +70,53 @@ function wslPathOfWindowsProject(winProject) {
   return "/mnt/c/" + winProject.replace(/\\/g, "/").replace(/^[A-Z]:\//, "");
 }
 
-function launchWindowsPet(ctx, config) {
+function autoSetupWindows(ctx, winProject, packageRoot) {
+  // 把 WSL 项目路径转成 Windows 可访问的 UNC 路径
+  let srcWin = "";
+  try {
+    const out = spawnSync("wslpath", ["-w", packageRoot], { encoding: "utf8" });
+    if (out.status === 0 && out.stdout) srcWin = out.stdout.trim();
+  } catch {
+    // ignore
+  }
+  if (!srcWin) {
+    ctx.logger.warn(`[seekmaid-pet] cannot resolve WSL source path for auto setup`);
+    return;
+  }
+
+  const ps = `
+$ErrorActionPreference = 'Continue'
+$src = '${srcWin.replace(/'/g, "''")}'
+$dst = '${winProject.replace(/'/g, "''")}'
+New-Item -ItemType Directory -Force -Path $dst | Out-Null
+robocopy $src $dst /E /XD .venv .git wslg-xcb-libs __pycache__ /NFL /NDL /NJH /NJS /NC /NS | Out-Null
+Set-Location $dst
+if (!(Test-Path '.venv\\Scripts\\python.exe')) {
+  if (Get-Command py -ErrorAction SilentlyContinue) { py -3 -m venv .venv } else { python -m venv .venv }
+}
+& '.venv\\Scripts\\python.exe' -m pip install --upgrade pip
+& '.venv\\Scripts\\python.exe' -m pip install -r requirements.txt
+Start-Process -FilePath "$dst\\.venv\\Scripts\\pythonw.exe" -ArgumentList "$dst\\deepseek_pet.py" -WorkingDirectory $dst
+`;
+  ctx.logger.info(`[seekmaid-pet] auto-setting up Windows pet at ${winProject} ...`);
+  const child = spawn("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps], {
+    stdio: "ignore",
+    windowsHide: true,
+  });
+  child.on("error", (err) => {
+    ctx.logger.warn(`[seekmaid-pet] auto setup failed to start: ${err.message}`);
+  });
+}
+
+function launchWindowsPet(ctx, config, packageRoot) {
   const winProject = config.windowsProject || defaultWindowsProject();
   const wslProbe = wslPathOfWindowsProject(winProject);
-  if (!existsSync(wslProbe + "/deepseek_pet.py")) {
-    ctx.logger.warn(`[seekmaid-pet] Windows pet not found at ${winProject}`);
-    return null;
+  const projectReady = existsSync(wslProbe + "/deepseek_pet.py");
+  const venvReady = existsSync(wslProbe + "/.venv/Scripts/pythonw.exe");
+
+  if (!projectReady || !venvReady) {
+    autoSetupWindows(ctx, winProject, packageRoot);
+    return { setup: true };
   }
 
   const pythonw = winProject + "\\.venv\\Scripts\\pythonw.exe";
@@ -112,7 +153,7 @@ export function apply(ctx, config = {}) {
 
   // 优先启动 Windows 原生桌宠（WSLg 显示/置顶问题多）。
   if (process.platform === "linux") {
-    const winChild = launchWindowsPet(ctx, config);
+    const winChild = launchWindowsPet(ctx, config, packageRoot);
     if (winChild) {
       ctx.effect(() => () => killWindowsPet());
       return;

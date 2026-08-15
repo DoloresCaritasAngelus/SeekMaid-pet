@@ -35,7 +35,8 @@ Windows 11 原生运行 SeekMaid 女仆桌宠（PySide6）
 3. 运行 `run_pet.bat`：即可手动启动 Windows 原生桌宠。
 4. 如果希望 DSH 启动时自动拉起桌宠：
    - 在 WSL 的 DSH 中安装本插件；
-   - 在插件配置里把 `windowsProject` 指向你 Windows 侧的仓库路径；
+   - 插件会自动检测/复制 Windows 项目并自动初始化（零配置模式）；
+   - 如果路径不同，可在插件配置里把 `windowsProject` 指向你 Windows 侧的仓库路径；
    - 重启 DSH。
 
 仓库不会包含以下本地环境内容（已在 `.gitignore` 中排除）：

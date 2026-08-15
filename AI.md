@@ -34,20 +34,25 @@ ls -d /mnt/c/Users/*/seekmaid-pet 2>/dev/null
 
 ### 2.1 Windows 侧准备
 
-如果 Windows 侧还没有项目副本：
+**零配置模式**：从 0.2.0 开始，插件在 WSL 的 DSH 中启动时会自动检测 Windows 侧项目：
+
+- 如果 `C:\Users\<user>\seekmaid-pet` 不存在，会自动从 WSL 仓库复制过去；
+- 如果 `.venv` 不存在，会自动创建并安装 PySide6；
+- 安装完成后自动启动 Windows 桌宠。
+
+不需要手动复制或运行 `setup_windows.bat`。
+
+如果希望手动准备，也可以：
 
 1. 把本仓库复制到 Windows，例如：
    ```powershell
    Copy-Item -Recurse "\\wsl.localhost\Ubuntu\home\<user>\...\seekmaid-pet" "C:\Users\<user>\seekmaid-pet"
    ```
-   或者让用户手动放置。
-
-2. 初始化 Windows 环境（自动创建 venv + 安装 PySide6）：
+2. 初始化 Windows 环境：
    ```powershell
    cd C:\Users\<user>\seekmaid-pet
    .\setup_windows.bat
    ```
-
 3. 手动测试桌宠：
    ```powershell
    .\run_pet.bat
