@@ -427,7 +427,7 @@ class PetWindow(QWidget):
         # Animation
         self._anim_timer = QTimer(self)
         self._anim_timer.timeout.connect(self._animate)
-        self._anim_timer.start(33)
+        self._anim_timer.start(50)
 
         # 保持最前：WSLg 可能不严格遵守 WindowStaysOnTopHint，定时 raise 一下。
         self._top_timer = QTimer(self)
@@ -799,7 +799,7 @@ if($script:h -ne [IntPtr]::Zero){ [W]::BringWindowToTop($script:h) | Out-Null; [
         self._status_label.setVisible(busy)
 
     def _animate(self) -> None:
-        self._phase += 1.0
+        self._phase += 1.5
         speed = 1.4 if self._is_busy else 1.0
         self._bob = math.sin(self._phase / 28.0 * speed) * (9 if self._is_busy else 6)
         self._tilt = math.sin(self._phase / 40.0 * speed) * (4 if self._is_busy else 2.5)
