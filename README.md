@@ -8,6 +8,45 @@
 - 长久运行：无控制台窗口（`pythonw`）、单实例、关闭窗口只隐藏到托盘、可设置开机自启。
 - DSH 插件模式：这个目录本身也是一个 DSH 插件包，DSH 启动时自动拉起桌宠，DSH 停止时自动关闭桌宠。
 
+## 架构说明：WSL + Windows 11
+
+本项目设计为：
+
+```text
+WSL 内运行 DSH（DeepSeek Harness）
+        │
+        │  localhost:3080
+        ▼
+Windows 11 原生运行 SeekMaid 女仆桌宠（PySide6）
+```
+
+- **DSH 跑在 WSL 里**：提供 API / WebSocket，桌宠从这里获取任务状态、授权、QA 等事件。
+- **桌宠跑在 Windows 11 原生侧**：不走 WSLg，所以窗口置顶、任务栏图标、拖动、提示音都更稳定。
+- **通信**：Windows 通过 `http://localhost:3080` 访问 WSL 里的 DSH（WSL2 自动转发 localhost）。
+
+> 如果你的 DSH 直接跑在 Windows 上，也可以使用同一套代码，`dsh_url` 保持 `http://localhost:3080` 即可。
+
+## 克隆后能否直接获得同等能力？
+
+**基本可以，但不是“克隆完立刻就能用”**，需要几步初始化：
+
+1. 在 Windows 侧克隆本仓库。
+2. 运行 `setup_windows.bat`：自动创建 `.venv` 并安装 PySide6。
+3. 运行 `run_pet.bat`：即可手动启动 Windows 原生桌宠。
+4. 如果希望 DSH 启动时自动拉起桌宠：
+   - 在 WSL 的 DSH 中安装本插件；
+   - 在插件配置里把 `windowsProject` 指向你 Windows 侧的仓库路径；
+   - 重启 DSH。
+
+仓库不会包含以下本地环境内容（已在 `.gitignore` 中排除）：
+
+- `.venv/`：每个人的 Python 虚拟环境不同
+- `wslg-xcb-libs/`：WSLg 本地运行库
+- `*.log`：运行日志
+- `__pycache__/`：Python 缓存
+
+所以别人克隆后，需要先执行初始化脚本，才能获得和当前一样的桌宠能力。
+
 ## DSH 插件安装（推荐）
 
 这个项目同时是一个 DSH 插件，包名 `seekmaid-pet`。安装后，DSH 每次启动都会自动启动桌宠；DSH 退出时也会自动关闭桌宠。
@@ -56,10 +95,14 @@ ln -sfn "/home/ehekatl/dsh/dsh work/seekmaid-pet" "$DSH_HOME/../dsh/node_modules
   name: 'seekmaid-pet'
   config:
     enabled: true
-    python: C:\Users\me\AppData\Local\Programs\Python\Python312\pythonw.exe
-    script: C:\path\to\deepseek_pet.py
+    windowsProject: C:\Users\<你的用户名>\seekmaid-pet   # Windows 侧项目路径
+    python: C:\Users\<你的用户名>\seekmaid-pet\.venv\Scripts\pythonw.exe
+    script: C:\Users\<你的用户名>\seekmaid-pet\deepseek_pet.py
     startupTimeoutMinutes: 3   # 可选，覆盖桌宠的 3 分钟自动退出机制
 ```
+
+> `windowsProject` 是 WSL 里的 DSH 插件去拉起 Windows 原生桌宠时使用的路径。
+> 插件默认会自动猜测 `C:\Users\<当前WSL用户名>\seekmaid-pet`，如果你的路径不同，请显式配置。
 
 ## 界面与操作
 
@@ -70,14 +113,18 @@ ln -sfn "/home/ehekatl/dsh/dsh work/seekmaid-pet" "$DSH_HOME/../dsh/node_modules
 | 右键桌宠 | 发送消息 / 打开 DSH 网页 / 退出 |
 | 系统托盘图标 | 显示/隐藏、开机自启、退出 |
 
-## 安装与运行
+## 安装与运行（Windows 侧）
 
-1. 安装 Python 3.10+（Windows 安装时勾选 **Add python.exe to PATH**）。
-2. 安装依赖：
+如果你从 GitHub 克隆到 Windows，想直接获得同等桌宠能力：
+
+1. 安装 Python 3.10+（勾选 **Add python.exe to PATH**）。
+2. 在项目目录运行一键初始化：
 
    ```bat
-   pip install -r requirements.txt
+   setup_windows.bat
    ```
+
+   它会自动创建 `.venv` 并安装 PySide6。
 
 3. 启动桌宠：
 
@@ -88,17 +135,19 @@ ln -sfn "/home/ehekatl/dsh/dsh work/seekmaid-pet" "$DSH_HOME/../dsh/node_modules
    或者手动：
 
    ```bat
-   pythonw deepseek_pet.py
+   .venv\Scripts\pythonw.exe deepseek_pet.py
    ```
+
+> 如果 DSH 跑在 WSL，Windows 侧桌宠通过 `http://localhost:3080` 连接，无需额外配置。
 
 ## 连接 DSH
 
-桌宠默认连接 `http://127.0.0.1:3080`（本机 DSH Web 服务）。
+桌宠默认连接 `http://localhost:3080`（本机 DSH Web 服务，WSL2 下会自动转发到 WSL）。
 如果 DSH 地址不同，编辑同目录下的 `config.json`：
 
 ```json
 {
-  "dsh_url": "http://127.0.0.1:3080",
+  "dsh_url": "http://localhost:3080",
   "session_id": "",
   "poll_interval": 3
 }
@@ -113,7 +162,7 @@ ln -sfn "/home/ehekatl/dsh/dsh work/seekmaid-pet" "$DSH_HOME/../dsh/node_modules
 
 | 字段 | 默认 | 说明 |
 |---|---|---|
-| `dsh_url` | `http://127.0.0.1:3080` | DSH Web 服务地址 |
+| `dsh_url` | `http://localhost:3080` | DSH Web 服务地址 |
 | `session_id` | `""` | 要监控/通信的会话；留空自动选择 |
 | `poll_interval` | `3` | 轮询 DSH 的间隔（秒） |
 | `scale` | `1.0` | 桌宠缩放倍数 |
@@ -147,7 +196,7 @@ ln -sfn "/home/ehekatl/dsh/dsh work/seekmaid-pet" "$DSH_HOME/../dsh/node_modules
   可以自己用工具把图片导出为透明 PNG，替换 `assets/deepseek_girl.png`。
 
 - **连不上 DSH？**  
-  先确认 DSH Web 已启动并能打开 `http://127.0.0.1:3080`。如果 DSH 在 WSL/远程，
+  先确认 DSH Web 已启动并能打开 `http://localhost:3080`。如果 DSH 在 WSL/远程，
   把 `dsh_url` 改成对应的地址。
 
 - **不想看到工具调用提示？**  

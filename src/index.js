@@ -45,15 +45,33 @@ function resolvePython(packageRoot) {
   return "python";
 }
 
-const WINDOWS_PROJECT_DEFAULT = "C:\\Users\\Ehekatl\\seekmaid-pet";
+function defaultWindowsProject() {
+  if (process.env.USERPROFILE) {
+    return process.env.USERPROFILE + "\\seekmaid-pet";
+  }
+  try {
+    const out = spawnSync("cmd.exe", ["/c", "echo %USERPROFILE%"], {
+      encoding: "utf8",
+      windowsHide: true,
+    });
+    if (out.status === 0 && out.stdout) {
+      const profile = out.stdout.trim().split(/\r?\n/)[0];
+      if (profile) return profile + "\\seekmaid-pet";
+    }
+  } catch {
+    // ignore
+  }
+  const user = process.env.USER || "user";
+  return `C:\\Users\\${user}\\seekmaid-pet`;
+}
 
 function wslPathOfWindowsProject(winProject) {
-  // C:\Users\Ehekatl\seekmaid-pet -> /mnt/c/Users/Ehekatl/seekmaid-pet
-  return "/mnt/c/" + winProject.replace(/\\/g, "/").replace(/^C:\//, "");
+  // C:\Users\<user>\seekmaid-pet -> /mnt/c/Users/<user>/seekmaid-pet
+  return "/mnt/c/" + winProject.replace(/\\/g, "/").replace(/^[A-Z]:\//, "");
 }
 
 function launchWindowsPet(ctx, config) {
-  const winProject = config.windowsProject || WINDOWS_PROJECT_DEFAULT;
+  const winProject = config.windowsProject || defaultWindowsProject();
   const wslProbe = wslPathOfWindowsProject(winProject);
   if (!existsSync(wslProbe + "/deepseek_pet.py")) {
     ctx.logger.warn(`[seekmaid-pet] Windows pet not found at ${winProject}`);
