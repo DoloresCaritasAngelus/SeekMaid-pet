@@ -64,7 +64,11 @@ ls -d /mnt/c/Users/*/seekmaid-pet 2>/dev/null
 在 DSH 所在环境执行：
 
 ```sh
+# 方式一：本地目录
 dsh plugin --profile web add file:/path/to/seekmaid-pet
+
+# 方式二：直接从 GitHub 安装（无需 npm）
+dsh plugin --profile web add "git+https://github.com/DoloresCaritasAngelus/SeekMaid-pet.git"
 ```
 
 如果 `dsh plugin` 不可用，手动接线：
