@@ -1,6 +1,11 @@
 @echo off
-rem DeepSeek 娘桌宠启动脚本 (Windows)
+rem SeekMaid 女仆启动脚本 (Windows)
 cd /d "%~dp0"
+
+if exist ".venv\Scripts\pythonw.exe" (
+    start "" ".venv\Scripts\pythonw.exe" deepseek_pet.py
+    exit /b 0
+)
 
 where pythonw >nul 2>nul
 if %errorlevel%==0 (
