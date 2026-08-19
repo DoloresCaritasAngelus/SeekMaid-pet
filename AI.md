@@ -107,6 +107,36 @@ ln -sfn /path/to/seekmaid-pet "$DSH_HOME/../dsh/node_modules/seekmaid-pet"
 
 重启后插件会自动拉起 Windows 原生桌宠。
 
+### 2.5 DSH 升级自愈（重要）
+
+DSH 升级 / 重装 `node_modules` 会清掉 `node_modules/seekmaid-pet`，而 profile 里
+仍声明了该 bundle → 下次启动直接崩溃：
+
+```text
+Error: dsh: cannot resolve profile bundle "seekmaid-pet" ...
+run 'dsh plugin --profile web install'
+```
+
+仓库自带幂等自愈脚本 `self-heal.mjs`：
+
+```sh
+node self-heal.mjs            # 实际修复（重建 symlink / 补回 profile 声明）
+node self-heal.mjs --dry-run  # 只报告会做什么
+```
+
+建议把它接进 DSH 启动脚本（和 dsh-aux / dsh-thinking-zh 一行）:
+
+```sh
+SEEKMAID_SELF_HEAL="$HOME/dsh/dsh work/seekmaid-pet/self-heal.mjs"
+if [ -f "$SEEKMAID_SELF_HEAL" ]; then
+  node "$SEEKMAID_SELF_HEAL" >> "$HOME/dsh/dsh-web.log" 2>&1 || \
+    echo "WARN: seekmaid-pet self-heal failed (non-fatal)"
+fi
+```
+
+> 自愈脚本只负责 seekmaid-pet 自己的注册，不碰 cordis.patch.yml（防止与 bundle
+> 机制重复注册导致 `duplicate loader entry id`）。
+
 ## 3. 验证
 
 ```sh
@@ -133,6 +163,7 @@ apply = function
 | 现象 | 原因 | 处理 |
 |---|---|---|
 | `duplicate loader entry id: seekmaid` | bundle 已自动加载 + 手动 patch 重复 | 删除手动 patch 里的 seekmaid 块 |
+| DSH 升级后报 `cannot resolve profile bundle "seekmaid-pet"` | 重装 node_modules 清掉了本地插件 | 运行 `node self-heal.mjs`，或依赖 start-dsh.sh 启动前自动自愈 |
 | Windows 桌宠没启动 | `windowsProject` 路径不对 | 配置 `windowsProject` 指向实际路径 |
 | `pythonw` 找不到 | Windows 未安装 Python 或未初始化 venv | 运行 `setup_windows.bat` |
 | 连不上 DSH | DSH 不在 WSL 或端口不同 | 检查 `dsh_url`，WSL2 下用 `localhost` |

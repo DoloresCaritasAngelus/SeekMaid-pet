@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-08-20
+
+### Added
+
+- `self-heal.mjs`：DSH 升级 / 重装 node_modules 后的幂等自愈脚本。
+  - 部署 node_modules 下 `seekmaid-pet` 缺失或为实体拷贝时，自动重建/转为仓库 symlink；
+  - 确保 DSH profile 的 `package.json` 里 `seekmaid-pet` 依赖与 `dsh.profile.bundles` 声明都在；
+  - 支持 `--dry-run`（只报告不写盘），与 dsh-aux / dsh-thinking-zh 的自愈脚本同款模式。
+- `start-dsh.sh` 接线：DSH 启动前自动运行 seekmaid-pet self-heal，升级后不再出现
+  `cannot resolve profile bundle "seekmaid-pet"` 崩溃。
+
+### Changed
+
+- 版本号升至 0.3.0。
+
 ## [0.2.0] - 2026-08-16
 
 ### Added

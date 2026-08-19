@@ -1,7 +1,7 @@
 {
   "name": "seekmaid-pet",
   "description": "SeekMaid 女仆 —— DeepSeek 娘桌宠，DSH 自动启动并监控任务状态",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/DoloresCaritasAngelus/SeekMaid-pet.git"
@@ -30,6 +30,7 @@
     "setup_windows.bat",
     "install_plugin.bat",
     "install_plugin.sh",
+    "self-heal.mjs",
     "docs",
     "tools"
   ],

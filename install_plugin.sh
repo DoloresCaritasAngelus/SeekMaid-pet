@@ -3,4 +3,5 @@
 set -e
 cd "$(dirname "$0")"
 dsh plugin --profile web add "file:$(pwd)"
-echo "安装成功。请重启 DSH 后桌宠会自动启动。"
+node self-heal.mjs
+echo "安装成功(已打 DSH 升级自愈)。请重启 DSH 后桌宠会自动启动。"

@@ -86,6 +86,7 @@ seekmaid-pet/
 ├── dsh_client.py            # DSH API 客户端
 ├── dsh_monitor.py           # DSH 任务监控 + WebSocket 事件
 ├── src/index.js             # DSH 插件 host 端：自动部署 + 启动桌宠
+├── self-heal.mjs            # DSH 升级自愈：开机自动恢复插件注册
 ├── cordis.patch.yml         # DSH 插件注册补丁
 ├── package.json             # DSH 插件包元数据
 ├── setup_windows.bat        # Windows 一键初始化（venv + PySide6）
@@ -147,6 +148,40 @@ ln -sfn "$(pwd)" "$DSH_HOME/../dsh/node_modules/seekmaid-pet"
 > 如果 Python 不在 PATH，可以在插件配置里指定 `python` 路径。
 >
 > 注意：如果 DSH 跑在 WSL/远程 Linux，而桌宠要显示在 Windows 桌面，插件需要装在 Windows 侧的 DSH 上，Linux 侧无法直接拉起 Windows GUI。
+
+### DSH 升级自愈（重要）
+
+DSH 升级 / 重装 `node_modules` 时，会把本地安装的 `seekmaid-pet` 从
+`node_modules` 里清掉。如果 profile 里仍声明了该 bundle，DSH 启动会直接崩溃：
+
+```
+Error: dsh: cannot resolve profile bundle "seekmaid-pet" ... run 'dsh plugin --profile web install'
+```
+
+仓库自带的 `self-heal.mjs` 就是专门解决这个问题的（幂等）：
+
+```sh
+node self-heal.mjs            # 实际修复
+node self-heal.mjs --dry-run  # 只报告会做什么
+```
+
+它负责：
+
+- 重建 `node_modules/seekmaid-pet` → 本仓库 的 symlink（缺失即建，实体拷贝自动转 symlink）；
+- 保证 profile `package.json` 里 `seekmaid-pet` 依赖与 `dsh.profile.bundles` 声明都在；
+- 不写 `cordis.patch.yml`，避免与 bundle 机制重复注册。
+
+推荐在 DSH 启动脚本里开机自动执行（参考 `start-dsh.sh` 中 dsh-aux / thinking-zh 的写法）：
+
+```sh
+SEEKMAID_SELF_HEAL="$HOME/dsh/dsh work/seekmaid-pet/self-heal.mjs"
+if [ -f "$SEEKMAID_SELF_HEAL" ]; then
+  node "$SEEKMAID_SELF_HEAL" >> "$HOME/dsh/dsh-web.log" 2>&1 || \
+    echo "WARN: seekmaid-pet self-heal failed (non-fatal)"
+fi
+```
+
+这样以后升级 DSH 后，下次启动会自动恢复，桌宠不会失联。
 
 ### 插件配置示例
 
