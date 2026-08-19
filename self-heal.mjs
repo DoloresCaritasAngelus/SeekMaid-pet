@@ -49,13 +49,27 @@ function log(msg) {
   console.log(`[seekmaid-pet-self-heal] ${msg}`);
 }
 
-/** 探测 DSH 部署根(与 dsh-aux / dsh-thinking-zh 一致)。 */
+/** 探测 DSH 部署根(与 dsh-aux / dsh-thinking-zh 一致,但更抗 node_modules 被整体清空)。 */
 function detectDshRoot() {
   if (process.env.DSH_ROOT) return process.env.DSH_ROOT;
   const home = process.env.HOME;
   const candidates = [join(home, "dsh"), join(home, ".local/share/dsh"), "/opt/dsh"];
   for (const c of candidates) {
-    if (existsSync(join(c, "node_modules/@deepseek-ai"))) return c;
+    const pj = join(c, "package.json");
+    if (!existsSync(pj)) continue;
+    try {
+      const pkg = JSON.parse(readFileSync(pj, "utf8"));
+      // 即使 node_modules/@deepseek-ai 刚被 npm 整体清空,只要目录还像 DSH
+      // 部署(package.json 名字 dsh 或产物还在)就认下来,便于马上重建 symlink。
+      if (
+        pkg.name === "dsh" ||
+        existsSync(join(c, "node_modules/@deepseek-ai"))
+      ) {
+        return c;
+      }
+    } catch {
+      // 解析失败,换下一个候选
+    }
   }
   return null;
 }
