@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/github/license/DoloresCaritasAngelus/SeekMaid-pet)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%2011-8A2BE2)]()
 [![DSH](https://img.shields.io/badge/DSH-DeepSeek%20Harness-blue)]()
+[![Release](https://img.shields.io/github/v/release/DoloresCaritasAngelus/SeekMaid-pet)](https://github.com/DoloresCaritasAngelus/SeekMaid-pet/releases)
 
 一个运行在 Windows 11 上的可爱桌面宠物。使用你提供的 DEEPSEEK 娘形象，
 常驻桌面/系统托盘，并连接本机 DSH（DeepSeek Harness）终端：
@@ -204,10 +205,28 @@ fi
 | 项目 | 要求 |
 |---|---|
 | Windows | Windows 11（10 也可尝试） |
-| Python | 3.10+（Windows 侧） |
-| DSH | DeepSeek Harness ≥ 0.1.0-rc.6 |
+| Python | 3.10+（Windows 侧，桌宠运行时） |
+| PySide6 | ≥ 6.6（由 `requirements.txt` 自动安装） |
+| DSH | DeepSeek Harness ≥ 0.1.0-rc.6（推荐 **rc.8+**） |
+| @deepseek-ai/cordis | `^4.0.1`（DSH 插件的 peerDependency） |
+| Node.js | LTS（DSH 自带即可；`self-heal.mjs` 只用内置模块，无第三方依赖） |
 | DSH 运行位置 | WSL / Linux（推荐）或 Windows 原生 |
 | 网络 | Windows 可访问 `http://localhost:3080` |
+
+## 依赖 / Dependencies
+
+| 层 | 依赖 | 版本要求 | 说明 |
+|---|---|---|---|
+| Windows 桌宠运行时 | Python | ≥ 3.10 | 运行 PySide6 桌宠 |
+| Windows 桌宠运行时 | PySide6 | ≥ 6.6 | 桌面宠物 GUI 框架（`requirements.txt`） |
+| Windows 桌宠运行时 | Windows | 11 | 原生窗口、托盘、置顶、提示音 |
+| DSH 宿主 | @deepseek-ai/dsh | ≥ 0.1.0-rc.6（推荐 rc.8+） | DeepSeek Harness 本体 |
+| DSH 宿主 | @deepseek-ai/cordis | ^4.0.1 | 插件运行时（peerDependency） |
+| DSH 宿主 | Node.js | LTS | DSH / 插件自愈脚本运行环境 |
+| 部署方式 | — | — | 支持 `file:` 本地路径或 `git+https:` 直装，无需 npm 发布 |
+
+> 📌 `self-heal.mjs` 是纯 Node 内置模块实现（`fs`/`path`/`child_process` 等），
+> 不额外引入任何第三方依赖，升级 DSH 后开机自动恢复插件注册。
 
 ## 界面与操作
 
